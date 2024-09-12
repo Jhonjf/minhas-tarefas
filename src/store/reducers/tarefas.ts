@@ -39,20 +39,47 @@ const tarefasSlice = createSlice({
   name: 'tarefas',
   initialState,
   reducers: {
-    remover: (state, action: PayloadAction<number>) => {
-      state.itens = state.itens.filter((tarefa) => tarefa.id !== action.payload)
+    remover: (state: { itens: any[] }, action: PayloadAction<number>) => {
+      state.itens = state.itens.filter(
+        (tarefa: { id: number }) => tarefa.id !== action.payload
+      )
     },
-    editar: (state, action: PayloadAction<Tarefa>) => {
+    editar: (state: { itens: any[] }, action: PayloadAction<Tarefa>) => {
       const indexDaTarefa = state.itens.findIndex(
-        (t) => t.id === action.payload.id
+        (t: { id: number }) => t.id === action.payload.id
       )
       if (indexDaTarefa >= 0) {
         state.itens[indexDaTarefa] = action.payload
+      }
+    },
+    cadastrar: (state: { itens: Tarefa[] }, action: PayloadAction<Tarefa>) => {
+      const tarefaJaExiste = state.itens.find(
+        (tarefas: { titulo: string }) =>
+          tarefas.titulo.toLowerCase() === action.payload.titulo.toLowerCase()
+      )
+
+      if (tarefaJaExiste) {
+        alert('Já existe uma tarefa com esse nome')
+      } else {
+        state.itens.push(action.payload)
+      }
+    },
+    alteraStatus: (
+      state,
+      action: PayloadAction<{ id: number; finalizado: boolean }>
+    ) => {
+      const indexDaTarefa = state.itens.findIndex(
+        (t: { id: number }) => t.id === action.payload.id
+      )
+      if (indexDaTarefa >= 0) {
+        state.itens[indexDaTarefa].status = action.payload.finalizado
+          ? enums.Status.CONCLUIDA
+          : enums.Status.PENDENTE
       }
     }
   }
 })
 
 // Exportação dos actions e reducer
-export const { remover, editar } = tarefasSlice.actions
+export const { remover, editar, cadastrar, alteraStatus } = tarefasSlice.actions
 export default tarefasSlice.reducer
